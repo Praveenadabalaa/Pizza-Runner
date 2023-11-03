@@ -1,3 +1,4 @@
+********************Pizza Metrics**********************
 1)How many pizzas were ordered?
 
 select count(order_id) as Pizza_count from pizza_runner.customer_orders
@@ -91,3 +92,46 @@ group by datepart(weekday,order_time)
 
 select count(order_id),datename(weekday,order_time) as Weekday_orders from pizza_runner.customer_orders
 group by datepart(weekday,order_time)
+
+********************************Runner and Customer Experience*********************************
+
+1)How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)?
+select count(runner_id),week(registration_date,7) as registration_week from pizza_runner.runners group by registration_week
+
+2)What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
+select C.order_id,R.runner_id,C.order_time,R.pickup_time,
+AVG(DATEDIFF(Minute,C.order_time,R.pickup_time)) as Timetakentopickup
+from pizza_runner.customer_orders as C
+inner join
+pizza_runner.runner_orders as R
+on C.pizza_id=R.pizza_id
+group by R.runner_id,
+order by R.runner_id
+
+3)What was the average distance travelled for each customer?
+SELECT customer_id,avg(distance) as avgtime
+FROM pizza_runner.customer_orders as C
+inner join 
+pizza_runner.runner_orders as R
+on c.order_id=r.order_id
+group by customer_id
+
+4)What was the difference between the longest and shortest delivery times for all orders?
+select max(duration)-min(duration) from pizza_runner.runner_orders
+
+5)What was the average speed for each runner for each delivery and do you notice any trend for these values?
+select runner_id,duration,avg(duration) as Avg_speed
+from runner_orders
+group by runner_id
+
+6)What is the successful delivery percentage for each runner?
+;with cte as
+(
+select runner_id,case when cancellation="Restaurant Cancellation" or 
+cancellation="Customer Cancellation" then 1
+  else 0 as cancellation_orders,
+  case when cancellation=null or cancellation="NaN" then 1 else 0
+  as "No_cancellation_orders"
+  from runner_orders)
+  select sum(No_cancellation_orders)/(sum(No_cancellation_orders)+sum(No_cancellation_orders)) as Percentofordersdeliverd from cte
+  group by runner_id
