@@ -80,6 +80,7 @@ RIGHT JOIN pizza_runner.runner_orders as r ON c.order_id = r.order_id
 WHERE c.exclusions<>'NULL' AND c.exclusions<>' ' AND c.extras<>' ' AND c.extras<>'NAN' AND c.extras<>'NULL' and R.CANCELLATION<>'Restaurant Cancellation' AND R.CANCELLATION<> 'Customer Cancellation'
 
 8)What was the total volume of pizzas ordered for each hour of the day?
+
 select count(order_id),DATEPART(hour,order_time) as Order_time
 from pizza_runner.customer_orders
 group by DATEPART(hour,order_time)
@@ -96,9 +97,11 @@ group by datepart(weekday,order_time)
 ********************************Runner and Customer Experience*********************************
 
 1)How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)?
+
 select count(runner_id),week(registration_date,7) as registration_week from pizza_runner.runners group by registration_week
 
 2)What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
+
 select C.order_id,R.runner_id,C.order_time,R.pickup_time,
 AVG(DATEDIFF(Minute,C.order_time,R.pickup_time)) as Timetakentopickup
 from pizza_runner.customer_orders as C
@@ -109,6 +112,7 @@ group by R.runner_id,
 order by R.runner_id
 
 3)What was the average distance travelled for each customer?
+
 SELECT customer_id,avg(distance) as avgtime
 FROM pizza_runner.customer_orders as C
 inner join 
@@ -117,14 +121,17 @@ on c.order_id=r.order_id
 group by customer_id
 
 4)What was the difference between the longest and shortest delivery times for all orders?
+
 select max(duration)-min(duration) from pizza_runner.runner_orders
 
 5)What was the average speed for each runner for each delivery and do you notice any trend for these values?
+
 select runner_id,duration,avg(duration) as Avg_speed
 from runner_orders
 group by runner_id
 
 6)What is the successful delivery percentage for each runner?
+
 ;with cte as
 (
 select runner_id,case when cancellation="Restaurant Cancellation" or 
